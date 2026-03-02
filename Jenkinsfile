@@ -1,0 +1,71 @@
+pipeline {
+    agent { label 'linux' }
+
+    stages {
+        stage ('GetCode') {
+            steps {
+                echo 'Initiating Getting Code...'
+                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) { 
+                    git clone 'https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git'
+                    git remote set-url origin 'https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git' // Configurar para el Push sin que el token quede en el remoto
+                }
+                echo WORKSPACE
+                sh 'dir'
+                echo 'Get Code DONE'
+            }
+        }
+
+        stage ('StaticTest') {
+            steps {
+                echo 'Initiating Static Code Analysis...'
+                sh '''
+                    flake8 --exit-zero --format=pylint src > flake8.out
+                    bandit --exit-zero -r . -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}] {msg}"
+                '''
+                recordIssues (
+                    enabledForFailure: true,
+                    tools: [
+                        flake8(name: 'Flake8', pattern: 'flake8.out')
+                        pyLint(name: 'Bandit', pattern: 'bandit.out')
+                    ]
+                )
+                echo 'Static Test DONE'
+            }
+        }
+
+        stage ('Deploy') {
+            steps {
+                echo 'Initiating SAM Deployment...'
+                sh '''
+                    sam build
+                    sam validate --region us-east-1
+                    sam deploy \
+                        --stack-name "staging-todo-list-aws" \
+                        --region "us-east-1" \
+                        --capabilities CAPABILITY_IAM \
+                         --parameter-overrides Stage=staging \
+                        --no-confirm-changeset \
+                        --no-fail-on-empty-changeset
+                '''
+                echo 'Deploy DONE'
+            }
+        }
+
+        stage ('RestTest') {
+            steps {
+                echo 'Initiating Integration Tests...'
+                sh '''
+                    API_URL=$(aws cloudformation describe-stacks \
+                        --stack-name "staging-todo-list-aws" \
+                        --query "Stacks[0].Outputs[?OutputKey=='BaseUrlApi'].OutputValue" \
+                        --region us-east-1 \
+                        --output text) 
+                    echo "$API_URL"
+                    BASE_URL=$API_URL pytest --junitxml=result-rest.xml test/integration/todoApiTest.py      
+                '''
+                junit 'result-rest.xml' 
+                echo 'Rest Tests DONE'
+            }
+        }
+    }
+}
