@@ -44,8 +44,9 @@ pipeline {
                     sam deploy \
                         --stack-name "staging-todo-list-aws" \
                         --region "us-east-1" \
+                        --config-env staging \
                         --capabilities CAPABILITY_IAM \
-                         --parameter-overrides Stage=staging \
+                        --parameter-overrides Stage=staging \
                         --no-confirm-changeset \
                         --no-fail-on-empty-changeset
                 '''
