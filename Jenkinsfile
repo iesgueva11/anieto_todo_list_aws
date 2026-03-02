@@ -75,6 +75,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                     /*
                         1. Login configuration
+                        2. Config driver to ignore jenkinsfile
                         2. Update branches & checkout master
                         3. Merge develop & push
                     */
@@ -84,6 +85,8 @@ pipeline {
                             sh """
                                 git config user.email "jenkins-bot@ci.com"
                                 git config user.name "Jenkins CI"
+
+                                git config merge.ours.driver true
  
                                 git fetch origin master develop
                                 git checkout master
