@@ -27,7 +27,7 @@ pipeline {
                 recordIssues (
                     enabledForFailure: true,
                     tools: [
-                        flake8(name: 'Flake8', pattern: 'flake8.out')
+                        flake8(name: 'Flake8', pattern: 'flake8.out'),
                         pyLint(name: 'Bandit', pattern: 'bandit.out')
                     ]
                 )
