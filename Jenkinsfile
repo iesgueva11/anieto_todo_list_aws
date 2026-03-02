@@ -6,8 +6,10 @@ pipeline {
             steps {
                 echo 'Initiating Getting Code...'
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) { 
-                    git clone 'https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git'
-                    git remote set-url origin 'https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git' // Configurar para el Push sin que el token quede en el remoto
+                    sh """
+                        git clone -b develop 'https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git'
+                        git remote set-url origin 'https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git' // Configurar para el Push sin que el token quede en el remoto
+                    """
                 }
                 echo WORKSPACE
                 sh 'dir'
@@ -65,6 +67,39 @@ pipeline {
                 '''
                 junit 'result-rest.xml' 
                 echo 'Rest Tests DONE'
+            }
+        }
+
+        stage ('Promote') {
+            steps {
+                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                    /*
+                        1. Login configuration
+                        2. Update branches & checkout master
+                        3. Merge develop & push
+                    */
+                    script {
+                        try {
+                            echo 'Initiating Master Merging...'
+                            sh """
+                                git config user.email "jenkins-bot@ci.com"
+                                git config user.name "Jenkins CI"
+ 
+                                git fetch origin master develop
+                                git checkout master
+                                git reset --hard origin/master
+
+                                git merge origin/develop --no-edit --no-ff
+                                git push https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git master
+
+                            """
+                            echo 'Merge DONE'
+                        } catch (Exception e) {
+                            currentBuild.result = 'FAILURE'
+                            error("ABORT: Conflicts between branches. Review and fix")
+                        }
+                    }
+                }
             }
         }
     }
