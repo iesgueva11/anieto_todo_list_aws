@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout() // Avoid Jenkins clone the repo automatically on the init
+    }
+
     stages {
         stage ('GetCode') {
             steps {
