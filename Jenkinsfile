@@ -6,13 +6,12 @@ pipeline {
             steps {
                 echo 'Initiating Getting Code...'
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) { 
-                    sh """
-                        git clone -b develop 'https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git'
-                        git remote set-url origin 'https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git' // Configurar para el Push sin que el token quede en el remoto
-                    """
+                    sh '''
+                        git clone -b develop https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git .
+                     '''
                 }
                 echo WORKSPACE
-                sh 'dir'
+                sh 'ls -la'
                 echo 'Get Code DONE'
             }
         }
@@ -77,13 +76,14 @@ pipeline {
                     /*
                         1. Login configuration
                         2. Config driver to ignore jenkinsfile
-                        2. Update branches & checkout master
-                        3. Merge develop & push
+                        3. Update branches & checkout master
+                        4. Merge develop
+                        5. Configure persistence authentication (to push and merge) & Push
                     */
                     script {
                         try {
                             echo 'Initiating Master Merging...'
-                            sh """
+                            sh '''
                                 git config user.email "jenkins-bot@ci.com"
                                 git config user.name "Jenkins CI"
 
@@ -94,9 +94,10 @@ pipeline {
                                 git reset --hard origin/master
 
                                 git merge origin/develop --no-edit --no-ff
-                                git push https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git master
-
-                            """
+                                
+                                git remote set-url origin https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git
+                                git push origin master
+                            '''
                             echo 'Merge DONE'
                         } catch (Exception e) {
                             currentBuild.result = 'FAILURE'
