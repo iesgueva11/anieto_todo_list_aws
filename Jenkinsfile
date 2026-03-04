@@ -1,18 +1,15 @@
 pipeline {
     agent any
-
-    options {
-        skipDefaultCheckout() // Avoid Jenkins clone the repo automatically on the init
-    }
-
     stages {
         stage ('GetCode') {
             steps {
                 echo 'Initiating Getting Code...'
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) { 
-                    sh '''
-                        git clone -b develop https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git .
-                     '''
+                    git branch: 'develop', url: 'https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git'
+                    // SH GIT OptionB
+                    //sh '''
+                    //    git clone -b develop https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git .
+                    // ''
                 }
                 echo WORKSPACE
                 sh 'ls -la'
@@ -42,16 +39,18 @@ pipeline {
             steps {
                 echo 'Initiating SAM Deployment...'
                 sh '''
+                    rm -f samconfig.toml
+
                     sam build
                     sam validate --region us-east-1
                     sam deploy \
                         --stack-name "staging-todo-list-aws" \
                         --region "us-east-1" \
-                        --config-env staging \
                         --capabilities CAPABILITY_IAM \
                         --parameter-overrides Stage=staging \
                         --no-confirm-changeset \
-                        --no-fail-on-empty-changeset
+                        --no-fail-on-empty-changeset \
+                        --resolve-s3
                 '''
                 echo 'Deploy DONE'
             }
