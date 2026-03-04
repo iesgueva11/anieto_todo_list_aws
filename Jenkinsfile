@@ -60,16 +60,18 @@ pipeline {
         stage ('RestTest') {
             steps {
                 echo 'Initiating Integration Tests...'
-                sh '''
-                    API_URL=$(aws cloudformation describe-stacks \
-                        --stack-name "staging-todo-list-aws" \
-                        --query "Stacks[0].Outputs[?OutputKey=='BaseUrlApi'].OutputValue" \
-                        --region us-east-1 \
-                        --output text) 
-                    echo "$API_URL"
-                    BASE_URL=$API_URL pytest --junitxml=result-rest.xml test/integration/todoApiTest.py      
-                '''
-                junit 'result-rest.xml' 
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    sh '''
+                        API_URL=$(aws cloudformation describe-stacks \
+                            --stack-name "staging-todo-list-aws" \
+                            --query "Stacks[0].Outputs[?OutputKey=='BaseUrlApi'].OutputValue" \
+                            --region us-east-1 \
+                            --output text)
+                        echo "$API_URL"
+                        BASE_URL=$API_URL pytest --junitxml=result-rest.xml test/integration/todoApiTest.py
+                    '''
+                    junit 'result-rest.xml'
+                }
                 echo 'Rest Tests DONE'
             }
         }
