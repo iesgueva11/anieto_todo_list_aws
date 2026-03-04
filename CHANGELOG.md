@@ -11,3 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.1] - 2026-03-02
 ### Added
 - New change (promote testing)
+
+## [1.0.1] - 2026-03-02
+### Added
+- New change (rest test testing)
