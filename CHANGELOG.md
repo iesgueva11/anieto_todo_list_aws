@@ -43,3 +43,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.3] - 2026-03-04
 ### Added
 - New change (Adding agents CI)
+
+## [1.1.4] - 2026-03-04
+### Fixed
+- New change (Ignore Jenkins file agents)
+
+## [1.1.5] - 2026-03-04
+### Fixed
+- New change (Promote unstash code)
