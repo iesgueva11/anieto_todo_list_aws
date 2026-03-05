@@ -3,6 +3,10 @@ pipeline {
     stages {
         stage ('GetCode') {
             steps {
+                echo '------------------------------'
+                echo '- INIT PIPELINE DEVELOP (CI) -'
+                echo '------------------------------'
+                echo ''
                 echo 'Initiating Getting Code...'
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) { 
                     git branch: 'develop', url: 'https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git'
@@ -84,6 +88,8 @@ pipeline {
                         2. Config driver to ignore jenkinsfile
                         3. Update branches & checkout master
                         4. Merge develop
+                            a) git merge origin/develop --no-edit --no-ff
+                            b) git merge origin/develop -m "Merge dev branch into master [skip ci]" --no-ff
                         5. Configure persistence authentication (to push and merge) & Push
                     */
                     script {
@@ -99,7 +105,7 @@ pipeline {
                                 git checkout master
                                 git reset --hard origin/master
 
-                                git merge origin/develop -m "Merge dev branch into master [skip ci]" --no-ff
+                                git merge origin/develop --no-edit --no-ff
                                 
                                 git remote set-url origin https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git
                                 git push origin master
