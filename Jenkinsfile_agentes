@@ -20,7 +20,7 @@ pipeline {
                 echo WORKSPACE
                 sh 'ls -la'
                 echo 'Get Code DONE'
-                stash name:'code', includes:'**'
+                stash name:'code', includes:'**', useDefaultExcludes: false // useDefaultExcludes: false obliga a incluir los ocultos .git
             }
         }
 
