@@ -92,6 +92,7 @@ pipeline {
         
         stage ('Promote') {
             steps {
+                unstash name:'code'
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                     /*
                         1. Login configuration
