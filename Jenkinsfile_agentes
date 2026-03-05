@@ -10,15 +10,17 @@ pipeline {
                 echo '------------------------------'
                 echo ''
                 echo 'Initiating Getting Code...'
+                deleteDir()
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) { 
                     git branch: 'develop', url: 'https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git'
+                    dir('config') {
+                         git branch: 'staging', url: 'https://${GITHUB_TOKEN}@github.com/iesgueva11/todo_list_aws_config.git'
+                    }
                     // SH GIT OptionB
-                    //sh '''
-                    //    git clone -b develop https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git .
-                    // ''
+                    //sh ' git clone -b develop https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git '
                 }
                 echo WORKSPACE
-                sh 'ls -la'
+                sh 'ls -R'
                 echo 'Get Code DONE'
                 stash name:'code', includes:'**', useDefaultExcludes: false // useDefaultExcludes: false obliga a incluir los ocultos .git
             }
@@ -54,7 +56,7 @@ pipeline {
                     sam build
                     sam validate --region us-east-1
                     sam deploy \
-                        --config-file "" \
+                        --config-file config/samconfig.toml \
                         --stack-name "staging-todo-list-aws" \
                         --region "us-east-1" \
                         --capabilities CAPABILITY_IAM \
