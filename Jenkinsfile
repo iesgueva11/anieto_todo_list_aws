@@ -99,7 +99,7 @@ pipeline {
                                 git checkout master
                                 git reset --hard origin/master
 
-                                git merge origin/develop --no-edit --no-ff
+                                git merge origin/develop -m "Merge dev branch into master [skip ci]" --no-ff
                                 
                                 git remote set-url origin https://${GITHUB_TOKEN}@github.com/iesgueva11/anieto_todo_list_aws.git
                                 git push origin master
