@@ -107,6 +107,7 @@ pipeline {
                         try {
                             echo 'Initiating Master Merging...'
                             sh '''
+                                ls -la
                                 git config user.email "jenkins-bot@ci.com"
                                 git config user.name "Jenkins CI"
 
