@@ -22,4 +22,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.4] - 2026-03-02
 ### Added
-- New change (full CP1.4)
+- New change (full CP1.4) - pipeline #11
+
+## [1.0.4] - 2026-03-02
+### Added
+- New change (merge testing)
+
+## [1.1.0] - 2026-03-04
+### Added
+- New change (mark readonly on GET tests) - pipeline #13
+
+## [1.1.1] - 2026-03-04
+### Added
+- New change (Merge commit [skip ci]) - pipeline #14
