@@ -51,7 +51,7 @@ pipeline {
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     sh '''
                         API_URL=$(aws cloudformation describe-stacks \
-                            --stack-name "staging-todo-list-aws" \
+                            --stack-name "production-todo-list-aws" \
                             --query "Stacks[0].Outputs[?OutputKey=='BaseUrlApi'].OutputValue" \
                             --region us-east-1 \
                             --output text)
